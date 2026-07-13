@@ -607,11 +607,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/prashantvc/taskpaper-vscode.git"
+    "url": "https://github.com/prashantvc/tasky-vscode.git"
   },
   "bugs": {
-    "url": "https://github.com/prashantvc/taskpaper-vscode/issues"
+    "url": "https://github.com/prashantvc/tasky-vscode/issues"
   },
-  "homepage": "https://github.com/prashantvc/taskpaper-vscode#readme",
-  "qna": "https://github.com/prashantvc/taskpaper-vscode/issues"
+  "homepage": "https://github.com/prashantvc/tasky-vscode#readme",
+  "qna": "https://github.com/prashantvc/tasky-vscode/issues"
 }
