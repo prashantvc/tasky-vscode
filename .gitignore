@@ -1,5 +1,13 @@
-out
-dist
-node_modules
-.vscode-test/
+
+# Build / publish artifacts
+*.map
 *.vsix
+.DS_Store
+.vscode-test/
+.vsixmanifest
+dist
+media/icon-source.jpg
+node_modules
+node_modules/
+out
+out/

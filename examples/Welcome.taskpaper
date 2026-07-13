@@ -1,0 +1,27 @@
+Welcome:
+	- Tasky knows about projects, tasks, notes, and tags.
+	- Use the Tasky activity bar for Home, Projects, Searches, and Tags.
+	- Mark tasks done with Cmd/Ctrl+D (@done).
+	- Delete this text when you are ready to start your own lists.
+To Create Items:
+These are the new instructions
+	- New task: Cmd/Ctrl+Enter
+	- New project: Cmd/Ctrl+Alt+Enter
+	- Indent with Tab; outdent with Shift+Tab.
+	- Tag With…: Cmd/Ctrl+Alt+T
+Saved Searches:
+	Due Soon @search(@due)
+	Priority @search(@priority)
+Inbox:
+	- Write the report @due(2026-07-15) @priority(1)
+	- Review pull request @today
+	A plain note under Inbox.
+Work:
+	Active:
+		- Nested project demo @priority(3)
+		- Another nested task @priority(2)
+	- Top-level work task
+Archive:
+	- Archive completed work with Cmd/Ctrl+Shift+A (moves @done under Archive:). @project(Welcome)
+	- Ship extension @done(2026-07-13) @project(Inbox)
+	- Old completed item @done

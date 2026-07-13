@@ -1,34 +1,591 @@
 {
-  "name": "taskpaper",
-  "displayName": "taskpaper",
-  "description": "This is a task paper extension",
-  "version": "0.0.1",
+  "name": "tasky",
+  "displayName": "Tasky",
+  "description": "Plain-text tasks and outlines compatible with TaskPaper format. Projects, tasks, @tags, archive, sidebar, and item-path search for .taskpaper and .tasks files.",
+  "version": "0.4.1",
+  "publisher": "prashantvc",
   "license": "MIT",
   "engines": {
-    "vscode": "^1.66.0"
+    "vscode": "^1.74.0"
   },
   "categories": [
+    "Programming Languages",
     "Other"
   ],
+  "keywords": [
+    "tasky",
+    "taskpaper",
+    "todo",
+    "tasks",
+    "outline",
+    "plain text",
+    "productivity",
+    "gtd"
+  ],
   "activationEvents": [
-    "onCommand:taskpaper.helloWorld"
+    "onLanguage:tasky",
+    "onView:tasky.sidebar",
+    "onCommand:tasky.search"
   ],
   "main": "./out/extension.js",
   "contributes": {
+    "languages": [
+      {
+        "id": "tasky",
+        "aliases": [
+          "Tasky",
+          "tasky",
+          "TaskPaper"
+        ],
+        "extensions": [
+          ".taskpaper",
+          ".tasks",
+          ".todo"
+        ],
+        "configuration": "./language-configuration.json",
+        "icon": {
+          "light": "./media/tasky.svg",
+          "dark": "./media/tasky.svg"
+        }
+      }
+    ],
+    "grammars": [
+      {
+        "language": "tasky",
+        "scopeName": "text.tasky",
+        "path": "./syntaxes/tasky.tmLanguage.json"
+      }
+    ],
     "commands": [
       {
-        "command": "taskpaper.helloWorld",
-        "title": "Hello World"
+        "command": "tasky.toggleDone",
+        "title": "Tasky: Toggle Done",
+        "category": "Tasky"
+      },
+      {
+        "command": "tasky.makeTask",
+        "title": "Tasky: Make Task",
+        "category": "Tasky"
+      },
+      {
+        "command": "tasky.makeProject",
+        "title": "Tasky: Make Project",
+        "category": "Tasky"
+      },
+      {
+        "command": "tasky.makeNote",
+        "title": "Tasky: Make Note",
+        "category": "Tasky"
+      },
+      {
+        "command": "tasky.indent",
+        "title": "Tasky: Indent Items",
+        "category": "Tasky"
+      },
+      {
+        "command": "tasky.outdent",
+        "title": "Tasky: Outdent Items",
+        "category": "Tasky"
+      },
+      {
+        "command": "tasky.moveUp",
+        "title": "Tasky: Move Items Up",
+        "category": "Tasky"
+      },
+      {
+        "command": "tasky.moveDown",
+        "title": "Tasky: Move Items Down",
+        "category": "Tasky"
+      },
+      {
+        "command": "tasky.search",
+        "title": "Tasky: Search (Item Path)",
+        "category": "Tasky",
+        "icon": "$(search)"
+      },
+      {
+        "command": "tasky.clearSearch",
+        "title": "Tasky: Clear Search Filter",
+        "category": "Tasky",
+        "icon": "$(close)"
+      },
+      {
+        "command": "tasky.insertDateTag",
+        "title": "Tasky: Insert @due(today)",
+        "category": "Tasky"
+      },
+      {
+        "command": "tasky.goToProject",
+        "title": "Tasky: Go to Project",
+        "category": "Tasky"
+      },
+      {
+        "command": "tasky.sidebar.select",
+        "title": "Tasky: Sidebar Select",
+        "category": "Tasky"
+      },
+      {
+        "command": "tasky.sidebar.refresh",
+        "title": "Tasky: Refresh Sidebar",
+        "category": "Tasky",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "tasky.focusSidebar",
+        "title": "Tasky: Show Sidebar",
+        "category": "Tasky"
+      },
+      {
+        "command": "tasky.openWelcome",
+        "title": "Tasky: Open Welcome Example",
+        "category": "Tasky"
+      },
+      {
+        "command": "tasky.newFile",
+        "title": "Tasky: New File",
+        "category": "Tasky"
+      },
+      {
+        "command": "tasky.archiveDone",
+        "title": "Tasky: Archive @done Items",
+        "category": "Tasky",
+        "icon": "$(archive)"
+      },
+      {
+        "command": "tasky.toggleToday",
+        "title": "Tasky: Toggle @today",
+        "category": "Tasky"
+      },
+      {
+        "command": "tasky.tagWith",
+        "title": "Tasky: Tag With\u2026",
+        "category": "Tasky"
+      },
+      {
+        "command": "tasky.removeTags",
+        "title": "Tasky: Remove Tags in Selection",
+        "category": "Tasky"
+      },
+      {
+        "command": "tasky.newTask",
+        "title": "Tasky: New Task",
+        "category": "Tasky"
+      },
+      {
+        "command": "tasky.newNote",
+        "title": "Tasky: New Note",
+        "category": "Tasky"
+      },
+      {
+        "command": "tasky.newProject",
+        "title": "Tasky: New Project",
+        "category": "Tasky"
+      },
+      {
+        "command": "tasky.duplicateItems",
+        "title": "Tasky: Duplicate Items",
+        "category": "Tasky"
+      },
+      {
+        "command": "tasky.groupItems",
+        "title": "Tasky: Group Items",
+        "category": "Tasky"
+      },
+      {
+        "command": "tasky.moveToProject",
+        "title": "Tasky: Move to Project\u2026",
+        "category": "Tasky"
+      },
+      {
+        "command": "tasky.goToAnything",
+        "title": "Tasky: Go to Anything",
+        "category": "Tasky"
+      },
+      {
+        "command": "tasky.goHome",
+        "title": "Tasky: Go Home",
+        "category": "Tasky"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "tasky.toggleDone",
+        "key": "ctrl+d",
+        "mac": "cmd+d",
+        "when": "editorTextFocus && editorLangId == tasky"
+      },
+      {
+        "command": "tasky.indent",
+        "key": "tab",
+        "when": "editorTextFocus && editorLangId == tasky && !editorHasMultipleSelections && !suggestWidgetVisible && !inSnippetMode"
+      },
+      {
+        "command": "tasky.outdent",
+        "key": "shift+tab",
+        "when": "editorTextFocus && editorLangId == tasky && !suggestWidgetVisible && !inSnippetMode"
+      },
+      {
+        "command": "tasky.moveUp",
+        "key": "ctrl+shift+up",
+        "mac": "cmd+shift+up",
+        "when": "editorTextFocus && editorLangId == tasky"
+      },
+      {
+        "command": "tasky.moveDown",
+        "key": "ctrl+shift+down",
+        "mac": "cmd+shift+down",
+        "when": "editorTextFocus && editorLangId == tasky"
+      },
+      {
+        "command": "tasky.search",
+        "key": "ctrl+alt+f",
+        "mac": "cmd+alt+f",
+        "when": "editorTextFocus && editorLangId == tasky"
+      },
+      {
+        "command": "tasky.clearSearch",
+        "key": "escape",
+        "mac": "escape",
+        "when": "editorTextFocus && editorLangId == tasky && tasky.filterActive"
+      },
+      {
+        "command": "tasky.clearSearch",
+        "key": "ctrl+shift+escape",
+        "mac": "cmd+shift+escape",
+        "when": "editorTextFocus && editorLangId == tasky"
+      },
+      {
+        "command": "tasky.archiveDone",
+        "key": "ctrl+shift+a",
+        "mac": "cmd+shift+a",
+        "when": "editorTextFocus && editorLangId == tasky"
+      },
+      {
+        "command": "tasky.toggleToday",
+        "key": "ctrl+alt+y",
+        "mac": "cmd+alt+y",
+        "when": "editorTextFocus && editorLangId == tasky"
+      },
+      {
+        "command": "tasky.tagWith",
+        "key": "ctrl+alt+t",
+        "mac": "cmd+alt+t",
+        "when": "editorTextFocus && editorLangId == tasky"
+      },
+      {
+        "command": "tasky.removeTags",
+        "key": "ctrl+alt+shift+k",
+        "mac": "ctrl+alt+cmd+k",
+        "when": "editorTextFocus && editorLangId == tasky"
+      },
+      {
+        "command": "tasky.newTask",
+        "key": "ctrl+enter",
+        "mac": "cmd+enter",
+        "when": "editorTextFocus && editorLangId == tasky"
+      },
+      {
+        "command": "tasky.newProject",
+        "key": "ctrl+alt+enter",
+        "mac": "cmd+alt+enter",
+        "when": "editorTextFocus && editorLangId == tasky"
+      },
+      {
+        "command": "tasky.newNote",
+        "key": "ctrl+shift+enter",
+        "mac": "ctrl+cmd+enter",
+        "when": "editorTextFocus && editorLangId == tasky"
+      },
+      {
+        "command": "tasky.duplicateItems",
+        "key": "ctrl+shift+d",
+        "mac": "shift+cmd+d",
+        "when": "editorTextFocus && editorLangId == tasky"
+      },
+      {
+        "command": "tasky.groupItems",
+        "key": "ctrl+alt+g",
+        "mac": "alt+cmd+g",
+        "when": "editorTextFocus && editorLangId == tasky"
+      },
+      {
+        "command": "tasky.moveToProject",
+        "key": "ctrl+\\",
+        "mac": "cmd+\\",
+        "when": "editorTextFocus && editorLangId == tasky"
+      },
+      {
+        "command": "tasky.goToAnything",
+        "key": "ctrl+alt+p",
+        "mac": "cmd+alt+p",
+        "when": "editorTextFocus && editorLangId == tasky"
+      },
+      {
+        "command": "tasky.goHome",
+        "key": "ctrl+alt+h",
+        "mac": "cmd+alt+h",
+        "when": "editorTextFocus && editorLangId == tasky"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "tasky.toggleDone",
+          "when": "editorLangId == tasky",
+          "group": "tasky@1"
+        },
+        {
+          "command": "tasky.makeTask",
+          "when": "editorLangId == tasky",
+          "group": "tasky@2"
+        },
+        {
+          "command": "tasky.makeProject",
+          "when": "editorLangId == tasky",
+          "group": "tasky@3"
+        },
+        {
+          "command": "tasky.search",
+          "when": "editorLangId == tasky",
+          "group": "tasky@4"
+        },
+        {
+          "command": "tasky.archiveDone",
+          "when": "editorLangId == tasky",
+          "group": "tasky@5"
+        },
+        {
+          "command": "tasky.tagWith",
+          "when": "editorLangId == tasky",
+          "group": "tasky@6"
+        },
+        {
+          "command": "tasky.toggleToday",
+          "when": "editorLangId == tasky",
+          "group": "tasky@7"
+        },
+        {
+          "command": "tasky.moveToProject",
+          "when": "editorLangId == tasky",
+          "group": "tasky@8"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "tasky.toggleDone",
+          "when": "editorLangId == tasky"
+        },
+        {
+          "command": "tasky.makeTask",
+          "when": "editorLangId == tasky"
+        },
+        {
+          "command": "tasky.makeProject",
+          "when": "editorLangId == tasky"
+        },
+        {
+          "command": "tasky.makeNote",
+          "when": "editorLangId == tasky"
+        },
+        {
+          "command": "tasky.indent",
+          "when": "editorLangId == tasky"
+        },
+        {
+          "command": "tasky.outdent",
+          "when": "editorLangId == tasky"
+        },
+        {
+          "command": "tasky.moveUp",
+          "when": "editorLangId == tasky"
+        },
+        {
+          "command": "tasky.moveDown",
+          "when": "editorLangId == tasky"
+        },
+        {
+          "command": "tasky.search",
+          "when": "editorLangId == tasky"
+        },
+        {
+          "command": "tasky.clearSearch",
+          "when": "editorLangId == tasky"
+        },
+        {
+          "command": "tasky.insertDateTag",
+          "when": "editorLangId == tasky"
+        },
+        {
+          "command": "tasky.goToProject",
+          "when": "editorLangId == tasky"
+        },
+        {
+          "command": "tasky.sidebar.select",
+          "when": "false"
+        },
+        {
+          "command": "tasky.archiveDone",
+          "when": "editorLangId == tasky || tasky.hasOpenDocument"
+        },
+        {
+          "command": "tasky.toggleToday",
+          "when": "editorLangId == tasky || tasky.hasOpenDocument"
+        },
+        {
+          "command": "tasky.tagWith",
+          "when": "editorLangId == tasky || tasky.hasOpenDocument"
+        },
+        {
+          "command": "tasky.removeTags",
+          "when": "editorLangId == tasky || tasky.hasOpenDocument"
+        },
+        {
+          "command": "tasky.newTask",
+          "when": "editorLangId == tasky || tasky.hasOpenDocument"
+        },
+        {
+          "command": "tasky.newNote",
+          "when": "editorLangId == tasky || tasky.hasOpenDocument"
+        },
+        {
+          "command": "tasky.newProject",
+          "when": "editorLangId == tasky || tasky.hasOpenDocument"
+        },
+        {
+          "command": "tasky.duplicateItems",
+          "when": "editorLangId == tasky || tasky.hasOpenDocument"
+        },
+        {
+          "command": "tasky.groupItems",
+          "when": "editorLangId == tasky || tasky.hasOpenDocument"
+        },
+        {
+          "command": "tasky.moveToProject",
+          "when": "editorLangId == tasky || tasky.hasOpenDocument"
+        },
+        {
+          "command": "tasky.goToAnything",
+          "when": "editorLangId == tasky || tasky.hasOpenDocument"
+        },
+        {
+          "command": "tasky.goHome",
+          "when": "editorLangId == tasky || tasky.hasOpenDocument"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "tasky.sidebar.refresh",
+          "when": "view == tasky.sidebar",
+          "group": "navigation"
+        },
+        {
+          "command": "tasky.clearSearch",
+          "when": "view == tasky.sidebar",
+          "group": "navigation"
+        },
+        {
+          "command": "tasky.search",
+          "when": "view == tasky.sidebar",
+          "group": "navigation"
+        },
+        {
+          "command": "tasky.archiveDone",
+          "when": "view == tasky.sidebar",
+          "group": "navigation"
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Tasky",
+      "properties": {
+        "tasky.includeDateWhenTaggingDone": {
+          "type": "boolean",
+          "default": true,
+          "description": "When marking a task @done, include today's date as the tag value (YYYY-MM-DD)."
+        },
+        "tasky.dimDoneTasks": {
+          "type": "boolean",
+          "default": true,
+          "description": "Dim/strikethrough @done tasks (decoration; small cost)."
+        },
+        "tasky.highlightTags": {
+          "type": "boolean",
+          "default": false,
+          "description": "Highlight @tags with decorations (slower on large files). TextMate grammar already colors tags when this is off."
+        },
+        "tasky.archive.includeProjectTag": {
+          "type": "boolean",
+          "default": true,
+          "description": "When archiving @done items, add @project(Parent / Path) recording where the item came from."
+        },
+        "tasky.archive.removeExtraTags": {
+          "type": "boolean",
+          "default": false,
+          "description": "When archiving, remove tags other than @done."
+        },
+        "tasky.completion.includeCommonTags": {
+          "type": "boolean",
+          "default": true,
+          "description": "Include common tags (done, today, due, start, \u2026) in @ autocomplete even if not yet used in the file."
+        },
+        "tasky.highlightProjects": {
+          "type": "boolean",
+          "default": true,
+          "description": "Bold project names with decorations."
+        }
+      }
+    },
+    "configurationDefaults": {
+      "[tasky]": {
+        "editor.insertSpaces": false,
+        "editor.detectIndentation": false,
+        "editor.tabSize": 4,
+        "editor.wordWrap": "on",
+        "editor.quickSuggestions": {
+          "other": true,
+          "comments": false,
+          "strings": false
+        },
+        "editor.suggest.showWords": false,
+        "editor.wordBasedSuggestions": "off"
+      }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "tasky",
+          "title": "Tasky",
+          "icon": "$(checklist)"
+        }
+      ]
+    },
+    "views": {
+      "tasky": [
+        {
+          "id": "tasky.sidebar",
+          "name": "Outline",
+          "contextualTitle": "Tasky",
+          "icon": "$(checklist)"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "tasky.sidebar",
+        "contents": "Open a **.taskpaper** or **.tasks** file (TaskPaper-compatible format).\n\n**Home**, **Projects**, **Searches**, and **Tags** appear here.\n\n[Open Welcome example](command:tasky.openWelcome)\n\n[New Tasky file](command:tasky.newFile)",
+        "when": "!tasky.hasOpenDocument"
       }
     ]
   },
   "scripts": {
-    "vscode:prepublish": "yarn run compile",
+    "vscode:prepublish": "npm run compile",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "pretest": "yarn run compile && yarn run lint",
     "lint": "eslint src --ext ts",
-    "test": "node ./out/test/runTest.js"
+    "test": "node ./out/test/runTest.js",
+    "unit": "npm run compile && node ./out/test/unit/parser.test.js && node ./out/test/unit/archive.test.js && node ./out/test/unit/tagCompletion.test.js && node ./out/test/unit/lineTags.test.js && node ./out/test/unit/lineTypes.test.js && node ./out/test/unit/outlineCache.test.js && node ./out/test/unit/lineParser.test.js",
+    "package": "vsce package --no-dependencies --no-yarn",
+    "publish": "vsce publish --no-dependencies --no-yarn"
   },
   "devDependencies": {
     "@types/vscode": "^1.66.0",
@@ -42,5 +599,19 @@
     "mocha": "^9.2.2",
     "typescript": "^4.5.5",
     "@vscode/test-electron": "^2.1.3"
-  }
+  },
+  "icon": "media/icon.png",
+  "galleryBanner": {
+    "color": "#1e1e1e",
+    "theme": "dark"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/prashantvc/taskpaper-vscode.git"
+  },
+  "bugs": {
+    "url": "https://github.com/prashantvc/taskpaper-vscode/issues"
+  },
+  "homepage": "https://github.com/prashantvc/taskpaper-vscode#readme",
+  "qna": "https://github.com/prashantvc/taskpaper-vscode/issues"
 }

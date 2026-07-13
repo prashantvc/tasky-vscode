@@ -1,0 +1,9 @@
+Activity bar uses the built-in VS Code product icon "$(checklist)"
+from the Codicons set (https://github.com/microsoft/vscode-codicons).
+
+media/activitybar.svg is the same "checklist" glyph, vendored for reference /
+fallback, from:
+  https://github.com/microsoft/vscode-codicons/blob/main/src/icons/checklist.svg
+
+Codicons license: CC BY 4.0
+  https://github.com/microsoft/vscode-codicons/blob/main/LICENSE

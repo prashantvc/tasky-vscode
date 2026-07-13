@@ -1,0 +1,125 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "Tasky",
+  "scopeName": "text.tasky",
+  "patterns": [
+    {
+      "include": "#project"
+    },
+    {
+      "include": "#task"
+    },
+    {
+      "include": "#note"
+    }
+  ],
+  "repository": {
+    "project": {
+      "name": "meta.project.tasky",
+      "match": "^(\\t*)(?!-\\s)(\\S(?:.*?)?)(:)((?:\\s+@\\S+)*)\\s*$",
+      "captures": {
+        "1": {
+          "name": "punctuation.definition.indent.tasky"
+        },
+        "2": {
+          "name": "entity.name.section.project.tasky"
+        },
+        "3": {
+          "name": "punctuation.definition.project.tasky"
+        },
+        "4": {
+          "name": "meta.project.trailing-tags.tasky"
+        }
+      }
+    },
+    "task": {
+      "name": "meta.task.tasky",
+      "begin": "^(\\t*)(-)(\\s)",
+      "end": "$",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.indent.tasky"
+        },
+        "2": {
+          "name": "punctuation.definition.task.tasky"
+        },
+        "3": {
+          "name": "punctuation.separator.task.tasky"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#tag-done"
+        },
+        {
+          "include": "#tag"
+        },
+        {
+          "match": "[^@\\n]+",
+          "name": "meta.task.content.tasky"
+        }
+      ]
+    },
+    "note": {
+      "name": "meta.note.tasky",
+      "begin": "^(\\t*)(?!-\\s)(?=\\S)",
+      "end": "$",
+      "beginCaptures": {
+        "1": {
+          "name": "punctuation.definition.indent.tasky"
+        }
+      },
+      "patterns": [
+        {
+          "include": "#tag-done"
+        },
+        {
+          "include": "#tag"
+        },
+        {
+          "match": "[^@\\n]+",
+          "name": "comment.line.note.tasky"
+        }
+      ]
+    },
+    "tag-done": {
+      "name": "entity.other.attribute-name.tag.done.tasky",
+      "match": "(?<=\\s|^)(@done)(?:(\\()((?:\\\\\\(|\\\\\\)|[^()])*)(\\)))?(?=\\s|$)",
+      "captures": {
+        "1": {
+          "name": "keyword.tag.done.tasky"
+        },
+        "2": {
+          "name": "punctuation.definition.tag-value.begin.tasky"
+        },
+        "3": {
+          "name": "string.other.tag-value.tasky"
+        },
+        "4": {
+          "name": "punctuation.definition.tag-value.end.tasky"
+        }
+      }
+    },
+    "tag": {
+      "name": "entity.other.attribute-name.tag.tasky",
+      "match": "(?<=\\s|^)(@)([A-Za-z_\\u00C0-\\u00D6\\u00D8-\\u00F6\\u00F8-\\u02FF\\u0370-\\u037D\\u037F-\\u1FFF\\u200C-\\u200D\\u2070-\\u218F\\u2C00-\\u2FEF\\u3001-\\uD7FF\\uF900-\\uFDCF\\uFDF0-\\uFFFD][\\w\\-.\\u00B7\\u0300-\\u036F\\u203F-\\u2040]*)(?:(\\()((?:\\\\\\(|\\\\\\)|[^()])*)(\\)))?(?=\\s|$)",
+      "captures": {
+        "1": {
+          "name": "punctuation.definition.tag.tasky"
+        },
+        "2": {
+          "name": "entity.other.attribute-name.tag.name.tasky"
+        },
+        "3": {
+          "name": "punctuation.definition.tag-value.begin.tasky"
+        },
+        "4": {
+          "name": "string.other.tag-value.tasky"
+        },
+        "5": {
+          "name": "punctuation.definition.tag-value.end.tasky"
+        }
+      }
+    }
+  }
+}

@@ -1,70 +1,95 @@
-# taskpaper README
+# Tasky
 
-This is the README for your extension "taskpaper". After writing up a brief description, we recommend including the following sections.
+Plain-text task lists and outlines for VS Code — **compatible with [TaskPaper](https://www.taskpaper.com) format**.
+
+Open `.taskpaper`, `.tasks`, or `.todo` files. Use projects, tasks, notes, `@tags`, archive, sidebar, and item-path search.
+
+> **Unofficial.** Tasky works with TaskPaper-compatible plain text. Not affiliated with Hog Bay Software.
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+| Feature | Details |
+|--------|---------|
+| File types | `.taskpaper`, `.tasks`, `.todo` |
+| Format | TaskPaper-compatible: projects (`:`), tasks (`- `), notes, `@tags` |
+| Toggle Done | `@done` / `@done(YYYY-MM-DD)` |
+| Archive @done | Move completed items to `Archive:` |
+| Activity Bar sidebar | Home · Projects · Searches · Tags |
+| Item-path search | e.g. `//not @done`, `project Inbox //task` |
+| Tag autocomplete | Type `@` and `@tag(` |
+| Folding & symbols | Indent folding, Outline view |
+| Status bar | `done/total` tasks + active filter |
 
-For example if there is an image subfolder under your extension project workspace:
+## Quick start
 
-\!\[feature X\]\(images/feature-x.png\)
+1. Install **Tasky**
+2. Open or create a `*.taskpaper` or `*.tasks` file
+3. Use the **Tasky** Activity Bar icon for the outline sidebar
+4. Command Palette → **Tasky: Open Welcome Example**
 
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+```tasky
+Inbox:
+	- Write the report @due(2026-07-15)
+	- Review PR @today
+	- Ship it @done(2026-07-13)
+```
 
-## Requirements
+## Keyboard shortcuts
 
-If you have any requirements or dependencies, add a section describing those and how to install and configure them.
+| Action | macOS | Windows/Linux |
+|--------|-------|----------------|
+| Toggle Done | `⌘D` | `Ctrl+D` |
+| Archive @done | `⌘⇧A` | `Ctrl+Shift+A` |
+| Toggle @today | `⌘⌥Y` | `Ctrl+Alt+Y` |
+| Tag With… | `⌘⌥T` | `Ctrl+Alt+T` |
+| New Task | `⌘↩` | `Ctrl+Enter` |
+| New Project | `⌘⌥↩` | `Ctrl+Alt+Enter` |
+| Search (item path) | `⌘⌥F` | `Ctrl+Alt+F` |
+| Clear filter | `Esc` | `Esc` |
+| Go to Anything | `⌘⌥P` | `Ctrl+Alt+P` |
+| Go Home | `⌘⌥H` | `Ctrl+Alt+H` |
+| Indent / Outdent | `Tab` / `⇧Tab` | same |
 
-## Extension Settings
+More: **Command Palette** → type `Tasky`.
 
-Include if your extension adds any VS Code settings through the `contributes.configuration` extension point.
+## Archiving
 
-For example:
+1. Mark tasks done (`⌘D` / `Ctrl+D`)
+2. **Archive @done Items** (`⌘⇧A` / `Ctrl+Shift+A`) moves them under `Archive:`
 
-This extension contributes the following settings:
+Settings: `tasky.archive.*`, `tasky.includeDateWhenTaggingDone`.
 
-* `myExtension.enable`: enable/disable this extension
-* `myExtension.thing`: set to `blah` to do something
+## Search examples
 
-## Known Issues
+```
+//task
+//not @done
+project Inbox //task
+@due
+@today
+```
 
-Calling out known issues can help limit users opening duplicate issues against your extension.
+## Compatibility
 
-## Release Notes
+Tasky files use the same plain-text conventions as TaskPaper. Files round-trip with TaskPaper for Mac and other TaskPaper-compatible tools.
 
-Users appreciate release notes as you update your extension.
+## Development
 
-### 1.0.0
+```bash
+npm install
+npm run compile
+npm run unit
+npm run package   # → tasky-0.4.0.vsix
+```
 
-Initial release of ...
+## Credits
 
-### 1.0.1
+- [TaskPaper](https://www.taskpaper.com) format — Hog Bay Software  
+- [birch-outline](https://github.com/jessegrosjean/birch-outline) (MIT) — outline model  
+- [vscode-codicons](https://github.com/microsoft/vscode-codicons)  
 
-Fixed issue #.
+See [THIRD_PARTY_NOTICES.md](./THIRD_PARTY_NOTICES.md).
 
-### 1.1.0
+## License
 
-Added features X, Y, and Z.
-
------------------------------------------------------------------------------------------------------------
-## Following extension guidelines
-
-Ensure that you've read through the extensions guidelines and follow the best practices for creating your extension.
-
-* [Extension Guidelines](https://code.visualstudio.com/api/references/extension-guidelines)
-
-## Working with Markdown
-
-**Note:** You can author your README using Visual Studio Code.  Here are some useful editor keyboard shortcuts:
-
-* Split the editor (`Cmd+\` on macOS or `Ctrl+\` on Windows and Linux)
-* Toggle preview (`Shift+CMD+V` on macOS or `Shift+Ctrl+V` on Windows and Linux)
-* Press `Ctrl+Space` (Windows, Linux) or `Cmd+Space` (macOS) to see a list of Markdown snippets
-
-### For more information
-
-* [Visual Studio Code's Markdown Support](http://code.visualstudio.com/docs/languages/markdown)
-* [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
-
-**Enjoy!**
+MIT — see [LICENSE](./LICENSE).
