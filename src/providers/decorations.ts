@@ -2,6 +2,13 @@ import * as vscode from 'vscode';
 import { getDocumentAnalysis, noteDocumentChange } from '../model/documentCache';
 import { TaskyDocument } from '../model/TaskyDocument';
 
+/** Per-editor apply fingerprint — decorations are per TextEditor, not per document. */
+interface AppliedState {
+  version: number;
+  /** Filter + config epoch so those changes force re-apply on the same editor. */
+  stamp: string;
+}
+
 export class TaskyDecorator implements vscode.Disposable {
   private doneDecoration: vscode.TextEditorDecorationType;
   private tagDecoration: vscode.TextEditorDecorationType;
@@ -10,6 +17,7 @@ export class TaskyDecorator implements vscode.Disposable {
   private filterMatchDecoration: vscode.TextEditorDecorationType;
   private disposables: vscode.Disposable[] = [];
   private throttle: NodeJS.Timeout | undefined;
+  private pendingRefreshDocs = new Set<vscode.TextDocument>();
   private filterRecomputeTimer: NodeJS.Timeout | undefined;
 
   private filterLines: Set<number> | undefined;
@@ -19,14 +27,21 @@ export class TaskyDecorator implements vscode.Disposable {
   private onFilterChangedEmitter = new vscode.EventEmitter<void>();
   readonly onFilterChanged = this.onFilterChangedEmitter.event;
 
-  /** Fired after a debounced decoration refresh (status bar can subscribe). */
+  /** Fired after a decoration refresh (status bar can subscribe). */
   private onDidRefreshEmitter = new vscode.EventEmitter<vscode.TextEditor>();
   readonly onDidRefresh = this.onDidRefreshEmitter.event;
 
   lastTaskCount = 0;
   lastDoneCount = 0;
-  private lastAppliedVersion = -1;
-  private lastAppliedUri = '';
+
+  /**
+   * Track setDecorations per editor instance. Global uri+version skips were wrong:
+   * reopening a tab or focusing a split reuses the same document version with a new
+   * TextEditor that has never received decorations.
+   */
+  private appliedByEditor = new WeakMap<vscode.TextEditor, AppliedState>();
+  /** Bumped on configuration changes so every editor re-applies. */
+  private configEpoch = 0;
 
   constructor() {
     this.doneDecoration = vscode.window.createTextEditorDecorationType({
@@ -61,6 +76,26 @@ export class TaskyDecorator implements vscode.Disposable {
       this.onFilterChangedEmitter,
       this.onDidRefreshEmitter,
       vscode.window.onDidChangeActiveTextEditor((e) => this.refresh(e)),
+      // Splits / tab restore: decorate every visible tasky editor, not only the active one
+      vscode.window.onDidChangeVisibleTextEditors((editors) => {
+        for (const ed of editors) {
+          this.refresh(ed);
+        }
+      }),
+      vscode.workspace.onDidOpenTextDocument((doc) => {
+        if (doc.languageId !== 'tasky') {
+          return;
+        }
+        // Preview tab reopen: document is open before the editor is active
+        for (const ed of vscode.window.visibleTextEditors) {
+          if (ed.document === doc) {
+            this.refresh(ed);
+          }
+        }
+        if (vscode.window.activeTextEditor?.document === doc) {
+          this.refresh(vscode.window.activeTextEditor);
+        }
+      }),
       vscode.workspace.onDidChangeTextDocument((e) => {
         if (e.document.languageId !== 'tasky') {
           return;
@@ -76,20 +111,19 @@ export class TaskyDecorator implements vscode.Disposable {
           const delay = this.filterQuery.startsWith('project:') ? 200 : 500;
           this.scheduleFilterRecompute(e.document, delay);
         }
-        if (vscode.window.activeTextEditor?.document === e.document) {
-          this.scheduleRefresh(vscode.window.activeTextEditor);
-        }
+        // Debounce re-decorate for this document (all visible editors / splits)
+        this.scheduleRefreshDocument(e.document);
       }),
       vscode.workspace.onDidChangeConfiguration((e) => {
         if (e.affectsConfiguration('tasky')) {
-          this.lastAppliedVersion = -1;
-          this.refresh(vscode.window.activeTextEditor);
+          this.configEpoch++;
+          this.refreshVisible();
         }
       })
     );
 
     // Defer initial refresh so activation stays fast
-    setTimeout(() => this.refresh(vscode.window.activeTextEditor), 0);
+    setTimeout(() => this.refreshVisible(), 0);
   }
 
   get isFilterActive(): boolean {
@@ -98,6 +132,13 @@ export class TaskyDecorator implements vscode.Disposable {
 
   get activeFilterQuery(): string | undefined {
     return this.filterQuery;
+  }
+
+  /** Apply decorations to all visible tasky editors. */
+  refreshVisible(): void {
+    for (const ed of vscode.window.visibleTextEditors) {
+      this.refresh(ed);
+    }
   }
 
   setFilter(
@@ -113,8 +154,7 @@ export class TaskyDecorator implements vscode.Disposable {
     this.filterUri = editor.document.uri.toString();
     this.filterQuery = query;
     void vscode.commands.executeCommand('setContext', 'tasky.filterActive', true);
-    this.lastAppliedVersion = -1;
-    this.refresh(editor);
+    this.refreshVisible();
     this.onFilterChangedEmitter.fire();
   }
 
@@ -129,14 +169,15 @@ export class TaskyDecorator implements vscode.Disposable {
       if (ed.document.languageId === 'tasky') {
         ed.setDecorations(this.filterHideDecoration, []);
         ed.setDecorations(this.filterMatchDecoration, []);
-        this.lastAppliedVersion = -1;
         this.refresh(ed);
       }
     }
 
     const target = editor ?? vscode.window.activeTextEditor;
-    if (target) {
-      this.lastAppliedVersion = -1;
+    if (
+      target &&
+      !vscode.window.visibleTextEditors.includes(target)
+    ) {
       this.refresh(target);
     }
 
@@ -145,12 +186,26 @@ export class TaskyDecorator implements vscode.Disposable {
     }
   }
 
-  private scheduleRefresh(editor: vscode.TextEditor | undefined): void {
+  private scheduleRefreshDocument(document: vscode.TextDocument): void {
+    this.pendingRefreshDocs.add(document);
     if (this.throttle) {
       clearTimeout(this.throttle);
     }
     // Longer debounce while typing — TextMate still highlights live
-    this.throttle = setTimeout(() => this.refresh(editor), 280);
+    this.throttle = setTimeout(() => {
+      const docs = [...this.pendingRefreshDocs];
+      this.pendingRefreshDocs.clear();
+      for (const doc of docs) {
+        if (doc.languageId !== 'tasky') {
+          continue;
+        }
+        for (const ed of vscode.window.visibleTextEditors) {
+          if (ed.document === doc) {
+            this.refresh(ed);
+          }
+        }
+      }
+    }, 280);
   }
 
   private scheduleFilterRecompute(
@@ -214,8 +269,7 @@ export class TaskyDecorator implements vscode.Disposable {
         }
       }
       this.filterLines = new Set(lines);
-      this.lastAppliedVersion = -1;
-      this.refresh(editor);
+      this.refreshVisible();
       return;
     }
 
@@ -227,11 +281,19 @@ export class TaskyDecorator implements vscode.Disposable {
         return;
       }
       this.filterLines = new Set(results.map((r) => r.line));
-      this.lastAppliedVersion = -1;
-      this.refresh(editor);
+      this.refreshVisible();
     } catch {
       /* mid-edit path errors */
     }
+  }
+
+  /** Fingerprint of filter + config that must force re-apply when it changes. */
+  private applyStamp(uri: string): string {
+    const filterPart =
+      this.filterLines && this.filterUri === uri
+        ? `${this.filterQuery ?? ''}:${this.filterLines.size}`
+        : '';
+    return `${this.configEpoch}|${filterPart}`;
   }
 
   refresh(editor: vscode.TextEditor | undefined): void {
@@ -249,12 +311,14 @@ export class TaskyDecorator implements vscode.Disposable {
     this.lastTaskCount = analysis.taskCount;
     this.lastDoneCount = analysis.doneCount;
 
-    // Skip redundant setDecorations when nothing changed
     const uri = editor.document.uri.toString();
+    const stamp = this.applyStamp(uri);
+    const prev = this.appliedByEditor.get(editor);
+    // Skip only when this same editor instance already has this version + stamp
     if (
-      analysis.version === this.lastAppliedVersion &&
-      uri === this.lastAppliedUri &&
-      !this.isFilterActive
+      prev &&
+      prev.version === analysis.version &&
+      prev.stamp === stamp
     ) {
       this.onDidRefreshEmitter.fire(editor);
       return;
@@ -317,8 +381,10 @@ export class TaskyDecorator implements vscode.Disposable {
     editor.setDecorations(this.filterHideDecoration, hideRanges);
     editor.setDecorations(this.filterMatchDecoration, matchRanges);
 
-    this.lastAppliedVersion = analysis.version;
-    this.lastAppliedUri = uri;
+    this.appliedByEditor.set(editor, {
+      version: analysis.version,
+      stamp,
+    });
     this.onDidRefreshEmitter.fire(editor);
   }
 
@@ -326,6 +392,7 @@ export class TaskyDecorator implements vscode.Disposable {
     if (this.throttle) {
       clearTimeout(this.throttle);
     }
+    this.pendingRefreshDocs.clear();
     if (this.filterRecomputeTimer) {
       clearTimeout(this.filterRecomputeTimer);
     }

@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { projectTitleFromBody } from '../model/archiveScope';
 import { TaskyDocument } from '../model/TaskyDocument';
 import { collectTags, EXCLUDE_TAGS } from '../model/tagIndex';
 
@@ -88,13 +89,6 @@ export function buildSidebarTree(
   return [home, projectsGroup, searchesGroup, tagsGroup];
 }
 
-function projectTitle(body: string): string {
-  return body
-    .replace(/:(?:\s+@\S+)*\s*$/, '')
-    .replace(/:$/, '')
-    .trim();
-}
-
 function buildProjectTree(
   tp: TaskyDocument,
   document: vscode.TextDocument
@@ -108,7 +102,7 @@ function buildProjectTree(
   for (let i = 0; i < document.lineCount; i++) {
     const info = tp.parseLine(i);
     if (info.type === 'project') {
-      const title = projectTitle(info.bodyWithoutIndent);
+      const title = projectTitleFromBody(info.bodyWithoutIndent);
       if (title) {
         projects.push({ line: i, indent: info.indent, title });
       }
@@ -184,7 +178,7 @@ function buildSearches(
       if (tag.name === 'search' && tag.value) {
         const title =
           info.type === 'project'
-            ? projectTitle(info.bodyWithoutIndent)
+            ? projectTitleFromBody(info.bodyWithoutIndent)
             : info.bodyWithoutIndent
                 .replace(/^-\s*/, '')
                 .replace(
@@ -224,9 +218,22 @@ function buildSearches(
   return nodes;
 }
 
+/** Item path for a tag that ignores matches under the Archive: project. */
+function tagItemPathOutsideArchive(tagLabel: string, value?: string): string {
+  // Same Archive exclusion shape as archive.ts: //@text = Archive://…
+  if (value !== undefined) {
+    const escaped = value.replace(/"/g, '\\"');
+    return `${tagLabel} contains[l] "${escaped}" except //@text = Archive://${tagLabel}`;
+  }
+  return `${tagLabel} except //@text = Archive://${tagLabel}`;
+}
+
 function buildTags(document: vscode.TextDocument): SidebarNode[] {
-  // Line-scan index (same source as autocomplete / Tag With…)
-  const map = collectTags(document, { includeCommon: false });
+  // Active surface only — tags under Archive: are cold storage, not navigation
+  const map = collectTags(document, {
+    includeCommon: false,
+    excludeArchived: true,
+  });
   // Drop internal/config tags from sidebar
   for (const name of [...map.keys()]) {
     if (EXCLUDE_TAGS.has(name) || name === 'search') {
@@ -254,13 +261,13 @@ function buildTags(document: vscode.TextDocument): SidebarNode[] {
       id: `tag:${name}:${value}`,
       kind: 'tag-value' as const,
       label: value,
-      itemPath: `${tagLabel} contains[l] "${value.replace(/"/g, '\\"')}"`,
+      itemPath: tagItemPathOutsideArchive(tagLabel, value),
     }));
     return {
       id: `tag:${name}`,
       kind: 'tag' as const,
       label: tagLabel,
-      itemPath: tagLabel,
+      itemPath: tagItemPathOutsideArchive(tagLabel),
       children: children.length ? children : undefined,
       collapsible: children.length > 0,
     };

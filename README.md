@@ -57,6 +57,8 @@ More: **Command Palette** → type `Tasky`.
 1. Mark tasks done (`⌘D` / `Ctrl+D`)
 2. **Archive @done Items** (`⌘⇧A` / `Ctrl+Shift+A`) moves them under `Archive:`
 
+The Activity Bar **Tags** list ignores items under `Archive:` (active tags only). Projects still lists `Archive:` so you can open history.
+
 Settings: `tasky.archive.*`, `tasky.includeDateWhenTaggingDone`.
 
 ## Search examples
@@ -79,7 +81,7 @@ Tasky files use the same plain-text conventions as TaskPaper. Files round-trip w
 npm install
 npm run compile
 npm run unit
-npm run package   # → tasky-0.4.0.vsix
+npm run package   # → tasky-0.4.2.vsix
 ```
 
 ## Credits

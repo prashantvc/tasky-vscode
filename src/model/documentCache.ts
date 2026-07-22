@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import { LineInfo } from './TaskyDocument';
 import { parseTaskyLine } from './lineParser';
+import { markLinesUnderArchive } from './archiveScope';
 import { COMMON_TAGS, EXCLUDE_TAGS, TagStats } from './tagTypes';
 
 export interface DocumentAnalysis {
@@ -227,9 +228,20 @@ function incrementalUpdate(
   };
 }
 
-function recountTags(lines: LineInfo[]): Map<string, TagStats> {
+function recountTags(
+  lines: LineInfo[],
+  options?: { excludeArchived?: boolean }
+): Map<string, TagStats> {
+  const skip =
+    options?.excludeArchived === true
+      ? markLinesUnderArchive(lines)
+      : undefined;
   const tagStats = new Map<string, TagStats>();
-  for (const info of lines) {
+  for (let i = 0; i < lines.length; i++) {
+    if (skip && skip[i]) {
+      continue;
+    }
+    const info = lines[i];
     for (const tag of info.tags) {
       if (EXCLUDE_TAGS.has(tag.name)) {
         continue;
@@ -262,12 +274,19 @@ export function pruneDocumentAnalysis(openUris: ReadonlySet<string>): void {
 
 export function collectTagsCached(
   document: vscode.TextDocument,
-  options?: { includeCommon?: boolean }
+  options?: { includeCommon?: boolean; excludeArchived?: boolean }
 ): Map<string, TagStats> {
   const analysis = getDocumentAnalysis(document);
   const includeCommon = options?.includeCommon !== false;
+  const excludeArchived = options?.excludeArchived === true;
+
+  // Full analysis includes Archive:; re-count when sidebar needs active tags only.
+  const sourceStats = excludeArchived
+    ? recountTags(analysis.lines, { excludeArchived: true })
+    : analysis.tagStats;
+
   const map = new Map<string, TagStats>();
-  for (const [name, stats] of analysis.tagStats) {
+  for (const [name, stats] of sourceStats) {
     map.set(name, {
       name,
       values: new Set(stats.values),

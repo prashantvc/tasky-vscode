@@ -5,10 +5,11 @@ import type { TagStats } from './tagTypes';
 
 /**
  * Collect tag names and values (versioned document cache).
+ * @param options.excludeArchived — omit tags on lines under the Archive: project
  */
 export function collectTags(
   document: vscode.TextDocument,
-  options?: { includeCommon?: boolean }
+  options?: { includeCommon?: boolean; excludeArchived?: boolean }
 ): Map<string, TagStats> {
   return collectTagsCached(document, options);
 }

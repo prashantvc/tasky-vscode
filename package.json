@@ -2,7 +2,7 @@
   "name": "tasky",
   "displayName": "Tasky",
   "description": "Plain-text tasks and outlines compatible with TaskPaper format. Projects, tasks, @tags, archive, sidebar, and item-path search for .taskpaper and .tasks files.",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "publisher": "prashantvc",
   "license": "MIT",
   "engines": {
@@ -583,7 +583,7 @@
     "watch": "tsc -watch -p ./",
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js",
-    "unit": "npm run compile && node ./out/test/unit/parser.test.js && node ./out/test/unit/archive.test.js && node ./out/test/unit/tagCompletion.test.js && node ./out/test/unit/lineTags.test.js && node ./out/test/unit/lineTypes.test.js && node ./out/test/unit/outlineCache.test.js && node ./out/test/unit/lineParser.test.js",
+    "unit": "npm run compile && node ./out/test/unit/parser.test.js && node ./out/test/unit/archive.test.js && node ./out/test/unit/archiveScope.test.js && node ./out/test/unit/tagCompletion.test.js && node ./out/test/unit/lineTags.test.js && node ./out/test/unit/lineTypes.test.js && node ./out/test/unit/outlineCache.test.js && node ./out/test/unit/lineParser.test.js",
     "package": "vsce package --no-dependencies --no-yarn",
     "publish": "vsce publish --no-dependencies --no-yarn"
   },

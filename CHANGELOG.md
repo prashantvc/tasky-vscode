@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.2
+
+- Activity Bar **Tags** exclude items under the `Archive:` project
+- Tag filters also skip Archive matches (active surface only)
+- Projects list still includes `Archive:` for history navigation
+- **Fix:** re-apply decorations when switching tabs / reopening files (no edit required)
+- Decorate all visible Tasky editors (splits, preview restore), not only the active one
+
 ## 0.4.1
 
 - Full rebrand to **Tasky** (commands, language id, settings, views)

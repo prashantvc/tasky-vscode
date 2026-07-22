@@ -14,13 +14,13 @@
 npm install
 npm run unit
 npm run package
-# → tasky-0.4.0.vsix
+# → tasky-0.4.2.vsix
 ```
 
 Install locally:
 
 ```bash
-code --install-extension tasky-0.4.0.vsix
+code --install-extension tasky-0.4.2.vsix
 ```
 
 ## Publish to Marketplace
@@ -40,7 +40,7 @@ Bump version in `package.json` before each release (semver). Update `CHANGELOG.m
 ## Open VSX (optional, for VSCodium etc.)
 
 ```bash
-npx ovsx publish tasky-0.4.0.vsix -p <OPEN_VSX_TOKEN>
+npx ovsx publish tasky-0.4.2.vsix -p <OPEN_VSX_TOKEN>
 ```
 
 ## Checklist before publish
